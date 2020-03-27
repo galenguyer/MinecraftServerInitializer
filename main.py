@@ -11,7 +11,7 @@ def check_root() -> None:
     else:
         print('You are not running this script as root. This means dependencies cannot be automatically installed, and a service file cannot be created.')
         carryon = input('Are you sure you wish to continue? [yN]: ')
-        if carryon:
+        if carryon.lower() == 'y':
             pass
         else:
             sys.exit('Please run the script as root to continue')
