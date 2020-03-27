@@ -4,6 +4,9 @@ import sys
 import json
 from urllib.request import urlopen
 
+MC_VERSIONS = json.loads(urlopen('https://launchermeta.mojang.com/mc/game/version_manifest.json').read().decode('utf-8'))
+USER_VERSION = 'latest'
+
 def get_is_root() -> bool:
     return os.getuid() == 0;
 
@@ -19,12 +22,22 @@ def check_root() -> None:
             sys.exit('Please run the script as root to continue')
 
 def get_latest_version() -> str:
-    json_data = urlopen('https://launchermeta.mojang.com/mc/game/version_manifest.json').read().decode('utf-8')
-    versions = json.loads(json_data)
-    return versions['latest']['release']
+    return MC_VERSIONS['latest']['release']
+
+def get_vanilla_url(selected: str):
+    for version in MC_VERSIONS['versions']:
+        if version['id'] == selected:
+            version_json = json.loads(urlopen(version['url']).read().decode('utf-8'))
+            return version_json['downloads']['server']['url']
+    sys.exit(f'Invalid version {selected}. Exiting')
 
 def main() -> None:
-    print(get_latest_version())
+    uver = input(f'Input the version of Minecraft to use. The default is the lateset release ({get_latest_version()}): ')
+    if uver:
+        USER_VERSION = uver.lower()
+    else:
+        USER_VERSION = get_latest_version()
+    print(get_vanilla_url(USER_VERSION))
 
 if __name__ == '__main__':
     #check_root()
